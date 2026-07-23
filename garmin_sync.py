@@ -253,24 +253,32 @@ def _download_activity_original(client, activity_id, act):
 def build_health_record(client, cdate: str) -> dict:
     rec = {"date": cdate}
     # 1) 每日活动/静息心率/身体电量峰值
+    st = {}
     try:
         st = call_with_backoff(client.get_stats, cdate) or {}
         rec["resting_hr"] = st.get("restingHeartRate")
         rec["avg_stress"] = st.get("averageStressLevel")
         rec["body_battery_high"] = st.get("bodyBatteryHighestValue")
         rec["body_battery_low"] = st.get("bodyBatteryLowestValue")
-        rec["steps"] = st.get("steps")
         rec["calories"] = st.get("calories")
         rec["intensity_minutes"] = st.get("moderateIntensityMinutes")
         rec["floors"] = st.get("floorsAscended")
     except Exception as e:
         log(f"  ⚠️ get_stats({cdate}) 失败：{e}")
-    # 2) 用户摘要（含更多步数/距离等）
+    # 2) 用户摘要（步数/距离等最可靠来源；get_stats 常不返回 steps 或延迟为空）
+    us = {}
     try:
         us = call_with_backoff(client.get_user_summary, cdate) or {}
-        rec["user_summary"] = {k: us.get(k) for k in ("steps", "calories", "intensityMinutesGoal") if k in us}
     except Exception:
         pass
+    # 步数：优先用用户摘要，回退 get_stats（修复之前 steps 恒为 None 的问题）
+    steps = us.get("steps")
+    if steps is None:
+        steps = st.get("steps")
+    rec["steps"] = steps
+    rec["user_summary"] = {k: us.get(k) for k in
+                           ("steps", "calories", "intensityMinutesGoal", "stepGoal", "distance")
+                           if k in us}
     # 3) 睡眠
     try:
         sl = call_with_backoff(client.get_sleep_data, cdate) or {}
