@@ -6,3 +6,15 @@
 .garmin_config.json
 .garmin_tokens/
 .garmin_state.json
+# 活动摘要（由同步脚本生成）
+activities.json
+# AI 分析产物（含个人健康建议，勿提交）
+ai_*/
+snapshots/
+ai_daily_*.json
+ai_daily_*.md
+daily_snapshot_*.json
+# 环境变量/密钥
+.env
+.env.*
+!.env.example

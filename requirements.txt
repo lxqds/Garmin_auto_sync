@@ -1,0 +1,3 @@
+# 仓 A：佳明数据同步（仅同步所需依赖）
+garminconnect
+matplotlib

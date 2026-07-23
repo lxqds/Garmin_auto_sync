@@ -38,6 +38,7 @@ REPORTS = DATA / "reports"
 SUMMARY = DATA / "summary.md"
 HEALTH_MD = DATA / "health_daily.md"
 HEALTH_JSON = DATA / "health_records.json"
+ACTIVITIES_JSON = DATA / "activities.json"
 
 CONFIG_PATH = DATA / ".garmin_config.json"
 STATE_PATH = DATA / ".garmin_state.json"
@@ -309,6 +310,19 @@ def build_health_record(client, cdate: str) -> dict:
         pass
     if rec.get("stress_level") is None:
         rec["stress_level"] = st.get("averageStressLevel")
+    # 7) 训练状态 / 训练负荷 / 恢复时间
+    try:
+        ts = call_with_backoff(client.get_training_status, cdate) or {}
+        if isinstance(ts, dict):
+            rec["training_status"] = ts.get("trainingStatus") or ts.get("status")
+            rec["training_load"] = (
+                ts.get("trainingLoad") or ts.get("todayTrainingLoad")
+                or ts.get("acuteLoad") or ts.get("load")
+            )
+            rec["recovery_hours"] = ts.get("recoveryTime")
+            rec["load_level"] = ts.get("loadLevel")
+    except Exception:
+        pass
     return rec
 
 
@@ -336,6 +350,43 @@ def fetch_health(client, days: int, state: dict):
     HEALTH_JSON.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
     _write_health_md(records)
     return new_count
+
+
+def fetch_activity_summaries(client, days: int, state: dict):
+    """拉取近 days 天活动列表，按日期归并为基础摘要写入 activities.json，
+    供 AI 分析与仪表盘的「昨日训练」使用（不含原始文件）。"""
+    since = (datetime.date.today() - datetime.timedelta(days=days)).isoformat()
+    try:
+        acts = call_with_backoff(client.get_activities, 0, 50) or []
+    except Exception as e:
+        log(f"  ⚠️ get_activities 失败：{e}")
+        return 0
+    by_date: dict = {}
+    for a in acts:
+        d = (a.get("startTimeLocal") or "").split("T")[0]
+        if not d or d < since:
+            continue
+        tkey = ((a.get("activityType") or {}).get("typeKey") or "other")
+        dur = a.get("duration")
+        dist = a.get("distance")
+        by_date.setdefault(d, []).append({
+            "type": tkey,
+            "duration_sec": dur,
+            "distance_km": round(dist / 1000.0, 2) if dist else None,
+            "avg_hr": a.get("averageHR"),
+            "calories": a.get("calories"),
+            "training_effect": a.get("trainingEffect"),
+        })
+    existing = {}
+    if ACTIVITIES_JSON.exists():
+        try:
+            existing = json.loads(ACTIVITIES_JSON.read_text(encoding="utf-8"))
+        except Exception:
+            existing = {}
+    existing.update(by_date)
+    ACTIVITIES_JSON.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
+    log(f"🏃 活动摘要更新：覆盖 {len(by_date)} 天 → {ACTIVITIES_JSON.name}")
+    return len(by_date)
 
 
 def _fmt_dur(sec):
@@ -435,6 +486,7 @@ def cmd_fetch(days: int):
     log(f"🏃 新增活动文件 {act_n} 个。")
     if act_n:
         run_analysis()
+    fetch_activity_summaries(client, days, state)
     h_n = fetch_health(client, days, state)
     log(f"💤 新增/更新健康记录 {h_n} 天 → {HEALTH_MD.name}")
     state["last_fetch"] = now_iso()

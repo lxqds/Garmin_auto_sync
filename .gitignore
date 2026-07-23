@@ -20,6 +20,11 @@ garmin-data/inbox/*.tcx
 garmin-data/inbox/*.gpx
 # 令牌/配置/状态由 garmin-data/.gitignore 处理
 
+# ===== 环境变量/密钥（含 API key，勿提交） =====
+.env
+.env.*
+!.env.example
+
 # ===== 编辑器/系统 =====
 .idea/
 .vscode/
