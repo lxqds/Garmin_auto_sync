@@ -1,0 +1,26 @@
+# ===== WorkBuddy 内部文件（含个人记忆/笔记，勿提交） =====
+.workbuddy/
+
+# ===== Python 缓存 =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ===== 打包产物（由源码生成，无需入库） =====
+garmin-sync.zip
+
+# ===== 个人健康数据与原始运动记录（隐私，勿提交） =====
+# 聚合趋势/每日健康摘要
+garmin-data/health_*
+garmin-data/summary.md
+# 原始活动文件
+garmin-data/inbox/*.fit
+garmin-data/inbox/*.tcx
+garmin-data/inbox/*.gpx
+# 令牌/配置/状态由 garmin-data/.gitignore 处理
+
+# ===== 编辑器/系统 =====
+.idea/
+.vscode/
+.DS_Store

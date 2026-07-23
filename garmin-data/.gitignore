@@ -1,0 +1,8 @@
+# 含机密，切勿提交
+.strava_config.json
+.strava_tokens.json
+.garmin_config.json
+.garmin_tokens_*/
+.garmin_config.json
+.garmin_tokens/
+.garmin_state.json
