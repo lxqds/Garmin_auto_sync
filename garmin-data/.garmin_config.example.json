@@ -1,0 +1,9 @@
+{
+  "_comment": "复制本文件为 .garmin_config.json 并填写你的 Garmin 账号。密码仅存本地，已被 .gitignore 忽略，切勿提交到仓库。也可用 cookie 免密方式（二选一）。",
+  "email": "YOUR_GARMIN_EMAIL@example.com",
+  "password": "YOUR_GARMIN_PASSWORD",
+  "region": "cn",
+  "_cookie_login_comment": "若不想存密码：先清空上面 email/password，再从浏览器开发者工具复制以下两项 cookie（Garmin 网页登录态），留空则忽略。",
+  "cookie_order_token": "",
+  "cookie_jwt_fgp": ""
+}
