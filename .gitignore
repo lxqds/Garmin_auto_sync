@@ -14,6 +14,14 @@ garmin-sync.zip
 # 聚合趋势/每日健康摘要
 garmin-data/health_*
 garmin-data/summary.md
+# 佳明教练训练计划（个人训练数据，勿提交）
+garmin-data/coach_plan.md
+# 生成的个人图表（含睡眠/恢复数据，勿提交）
+garmin-data/sleep_quality.html
+garmin-data/health_trend.html
+# 跑步活动分析报告与归档（个人数据，勿提交）
+garmin-data/reports/
+garmin-data/processed/
 # 原始活动文件
 garmin-data/inbox/*.fit
 garmin-data/inbox/*.tcx

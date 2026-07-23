@@ -56,10 +56,10 @@ def parse_tcx(path):
 
 
 def parse_fit(path):
-    from fitparse import Activity
-    act = Activity(path)
+    from fitparse import FitFile
+    fitfile = FitFile(path)
     recs = []
-    for msg in act.get_messages('record'):
+    for msg in fitfile.get_messages('record'):
         rec = {}
         for field in msg:
             n = field.name

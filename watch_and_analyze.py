@@ -123,8 +123,12 @@ def append_summary(path, a, maxhr):
 
 def process_file(path, maxhr):
     name = os.path.basename(path)
-    recs = ag.parse_file(path) or []
-    a = ag.analyze(recs, maxhr=maxhr)
+    try:
+        recs = ag.parse_file(path) or []
+        a = ag.analyze(recs, maxhr=maxhr)
+    except Exception as e:
+        print(f"[SKIP] {name} 解析失败，跳过: {e}")
+        return
     rep = write_report(path, a, maxhr)
     append_summary(path, a, maxhr)
     # 归档
