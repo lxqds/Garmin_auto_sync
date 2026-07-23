@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Python syntax check (py_compile)
+        run: |
+          python -m py_compile analyze_garmin.py garmin_sync.py \
+            make_trend_chart.py strava_sync.py watch_and_analyze.py
+
+      - name: Secret / privacy scan
+        # 任何被 .gitignore 排除的敏感文件若被误提交（force-add），此处会失败
+        run: |
+          if git ls-files | grep -E '\.tokens|garmin_tokens|garmin_config\.json|garmin_state\.json|health_records\.json|health_daily\.md|health_trend\.html|\.fit$|\.tcx$|\.gpx$|\.workbuddy' ; then
+            echo "::error::检测到敏感/隐私文件被跟踪，请检查 .gitignore 并从版本库移除"
+            exit 1
+          fi
+          echo "OK: 无令牌 / 健康数据 / 原始记录被跟踪"

@@ -106,6 +106,29 @@ vs 静息心率负相关）。
 
 ---
 
+## 隐私与数据安全（重要）
+
+本仓库**刻意不含任何敏感信息**，相关文件已被 `.gitignore` 排除、从未入库：
+
+| 已排除（绝不入库） | 说明 |
+|---|---|
+| `garmin-data/.garmin_config.json` | 账号 email / password / region 配置 |
+| `garmin-data/.garmin_tokens_cn/` | 中国区登录令牌（等同账号读取权限） |
+| `garmin-data/.garmin_state.json` | 同步状态 |
+| `garmin-data/health_*.md` `.json` `.html` | 个人每日健康面板 / 原始数据 / 趋势图 |
+| `garmin-data/inbox/*.fit` `*.tcx` `*.gpx` | 原始运动记录 |
+| `.workbuddy/` | 本地工作区记忆 / 个人笔记 |
+| `garmin-sync.zip` | 导出的技能包（生成物，非源码） |
+
+> ✅ 推送前已用 `git ls-files` 复核：远端 `main` 仅含 15 个源码 / 文档文件，无任何令牌、配置、健康数据或原始记录。
+
+**注意事项**
+- 文档中的训练参数（最大心率 ≈ 200 bpm、作息 1–2 点睡等）为**作者个人情况**，仅供参考，请勿直接套用。
+- 本仓库默认设为 **私有（private）** 以保护个人信息；如需公开，请先确认 `garmin-data/` 下无遗漏的敏感文件。
+- 若你 fork / 克隆后自行运行，令牌与健康数据将落在你本地的 `garmin-data/`，请自行评估隐私风险。
+
+---
+
 ## 排错速查
 
 | 现象 | 原因 | 处理 |
