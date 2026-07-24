@@ -271,13 +271,15 @@ def build_health_record(client, cdate: str) -> dict:
         us = call_with_backoff(client.get_user_summary, cdate) or {}
     except Exception:
         pass
-    # 步数：优先用用户摘要，回退 get_stats（修复之前 steps 恒为 None 的问题）
-    steps = us.get("steps")
+    # 步数：get_user_summary 的真实键是 totalSteps（get_stats 常不返回 steps 或延迟为空）
+    steps = us.get("totalSteps")
+    if steps is None:
+        steps = us.get("steps")
     if steps is None:
         steps = st.get("steps")
     rec["steps"] = steps
     rec["user_summary"] = {k: us.get(k) for k in
-                           ("steps", "calories", "intensityMinutesGoal", "stepGoal", "distance")
+                           ("totalSteps", "steps", "calories", "intensityMinutesGoal", "stepGoal", "distance")
                            if k in us}
     # 3) 睡眠
     try:
